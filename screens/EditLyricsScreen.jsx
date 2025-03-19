@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, ScrollView, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; 
 import { loadLyrics, saveLyrics, loadGenres } from '../utils/storage';
 import { useTheme } from '../app/context/ThemeContext'; 
@@ -34,6 +34,19 @@ export default function EditLyricsScreen({ route, navigation }) {
   }, [id]);
 
   const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Title is required.');
+      return;
+    }
+    if (!content.trim()) {
+      Alert.alert('Error', 'Content is required.');
+      return;
+    }
+    if (!genreId) {
+      Alert.alert('Error', 'Please select a valid genre.');
+      return;
+    }
+
     const loadedLyrics = await loadLyrics();
     const updatedLyrics = loadedLyrics.map((lyric) =>
       lyric.id === id ? { ...lyric, title, content, genreId, artist } : lyric
@@ -44,6 +57,7 @@ export default function EditLyricsScreen({ route, navigation }) {
 
   return (
     <ScrollView style={[styles.container, isDarkMode && styles.containerDark]}>
+
       <TextInput
         style={[styles.input, isDarkMode && styles.inputDark]}
         placeholder="Title"
@@ -51,6 +65,8 @@ export default function EditLyricsScreen({ route, navigation }) {
         value={title}
         onChangeText={setTitle}
       />
+
+
       <TextInput
         style={[styles.input, isDarkMode && styles.inputDark]}
         placeholder="Artist"
@@ -58,6 +74,8 @@ export default function EditLyricsScreen({ route, navigation }) {
         value={artist}
         onChangeText={setArtist}
       />
+
+
       <TextInput
         style={[styles.input, styles.multilineInput, isDarkMode && styles.inputDark]}
         placeholder="Content"
@@ -66,6 +84,8 @@ export default function EditLyricsScreen({ route, navigation }) {
         onChangeText={setContent}
         multiline
       />
+
+
       <View style={[styles.pickerContainer, isDarkMode && styles.pickerContainerDark]}>
         <Picker
           selectedValue={genreId}
@@ -73,13 +93,18 @@ export default function EditLyricsScreen({ route, navigation }) {
           style={isDarkMode ? styles.pickerDark : styles.picker}
           dropdownIconColor={isDarkMode ? '#aaa' : '#000'}
         >
-          <Picker.Item label="Select a genre" value={null} />
+          <Picker.Item label="Select a genre" value={null} enabled={false} />
           {genres.map((genre) => (
             <Picker.Item key={genre.id} label={genre.name} value={genre.id} />
           ))}
         </Picker>
       </View>
-      <TouchableOpacity style={[styles.saveButton, isDarkMode && styles.saveButtonDark]} onPress={handleSave}>
+
+
+      <TouchableOpacity
+        style={[styles.saveButton, isDarkMode && styles.saveButtonDark]}
+        onPress={handleSave}
+      >
         <Text style={[styles.buttonText, isDarkMode && styles.buttonTextDark]}>Save</Text>
       </TouchableOpacity>
     </ScrollView>

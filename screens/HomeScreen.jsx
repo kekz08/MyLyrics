@@ -14,7 +14,6 @@ export default function HomeScreen({ navigation }) {
   const [genres, setGenres] = useState([]);
   const isFocused = useIsFocused();
 
-
   const { theme, themeStyles } = useTheme();
   const isDarkMode = theme === 'dark';
 
@@ -46,6 +45,7 @@ export default function HomeScreen({ navigation }) {
       );
     }
 
+    // ✅ Fix: Reset to full list when "All Genres" is selected
     if (filterGenre) {
       filtered = filtered.filter((lyric) => lyric.genreId === filterGenre);
     }
@@ -61,23 +61,26 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View
-    style={[
-      styles.container,
-      {
-        backgroundColor: themeStyles.backgroundColor,
-        padding: 20,
-        flex: 1, 
-      },
-      isDarkMode && {
-        borderColor: '#333', 
-      }
-    ]}
-  >
-
+      style={[
+        styles.container,
+        {
+          backgroundColor: themeStyles.backgroundColor,
+          padding: 20,
+          flex: 1,
+        },
+        isDarkMode && {
+          borderColor: '#333',
+        }
+      ]}
+    >
+      {/* Artist Filter */}
       <TextInput
         style={[
           styles.filterInput,
-          { borderColor: isDarkMode ? '#555' : '#ccc', color: isDarkMode ? '#fff' : '#000' }
+          {
+            borderColor: isDarkMode ? '#555' : '#ccc',
+            color: isDarkMode ? '#fff' : '#000',
+          }
         ]}
         placeholder="Filter by artist..."
         placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
@@ -85,19 +88,25 @@ export default function HomeScreen({ navigation }) {
         onChangeText={setFilterText}
       />
 
-<Picker
-    selectedValue={filterGenre}
-    style={styles.filterPicker}
-    dropdownIconColor="#fff" 
-    onValueChange={(itemValue) => setFilterGenre(itemValue)}
-  >
-    <Picker.Item label="All Genres" value="" />
-    {genres.map((genre) => (
-      <Picker.Item key={genre.id} label={genre.name} value={genre.id} />
-    ))}
-  </Picker>
+      {/* Genre Filter */}
+      <Picker
+        selectedValue={filterGenre}
+        style={styles.filterPicker}
+        dropdownIconColor="#fff"
+        onValueChange={(itemValue) => {
+          setFilterGenre(itemValue);
+          if (itemValue === '') {
+            setFilteredLyrics(lyrics); // ✅ Reset to full list
+          }
+        }}
+      >
+        <Picker.Item label="All Genres" value="" />
+        {genres.map((genre) => (
+          <Picker.Item key={genre.id} label={genre.name} value={genre.id} />
+        ))}
+      </Picker>
 
-
+      {/* Lyrics List */}
       <FlatList
         data={filteredLyrics}
         keyExtractor={(item) => item.id.toString()}
@@ -110,9 +119,9 @@ export default function HomeScreen({ navigation }) {
               Artist: {item.artist}
             </Text>
 
-
+            {/* Buttons */}
             <View style={styles.buttonContainer}>
-
+              {/* View Button */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('LyricsDetail', { id: item.id })}
@@ -121,7 +130,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>View</Text>
               </TouchableOpacity>
 
-
+              {/* Edit Button */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('EditLyrics', { id: item.id })}
@@ -130,7 +139,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>Edit</Text>
               </TouchableOpacity>
 
-
+              {/* Delete Button */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => handleDelete(item.id)}
@@ -158,24 +167,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 12,
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    borderColor: '#555', 
-    backgroundColor: '#333', 
-  },
   filterPicker: {
     height: 40,
-    color: '#fff', 
-  },
-  filterPicker: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     marginBottom: 16,
     backgroundColor: '#fff',
+    color: '#000',
   },
   card: {
     padding: 16,
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 4, 
+    elevation: 4,
   },
   title: {
     fontSize: 18,
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   buttonContainer: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 8,
   },
@@ -213,7 +212,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
-    elevation: 2, 
+    elevation: 2,
   },
   buttonText: {
     marginLeft: 4,
