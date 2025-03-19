@@ -8,12 +8,12 @@ import { useTheme } from '../app/context/ThemeContext';
 export default function HomeScreen({ navigation }) {
   const [lyrics, setLyrics] = useState([]);
   const [filteredLyrics, setFilteredLyrics] = useState([]);
-  const [filterArtist, setFilterArtist] = useState(''); // Filter by artist
-  const [selectedGenre, setSelectedGenre] = useState(''); // Selected genre for filtering
+  const [filterArtist, setFilterArtist] = useState(''); 
+  const [selectedGenre, setSelectedGenre] = useState(''); 
   const [genres, setGenres] = useState([]);
   const isFocused = useIsFocused();
 
-  // Use ThemeContext correctly
+  
   const { theme, themeStyles } = useTheme();
   const isDarkMode = theme === 'dark';
 
@@ -39,14 +39,14 @@ export default function HomeScreen({ navigation }) {
   const applyFilters = () => {
     let filtered = lyrics;
 
-    // Filter by artist
+    
     if (filterArtist) {
       filtered = filtered.filter((lyric) =>
         lyric.artist.toLowerCase().includes(filterArtist.toLowerCase())
       );
     }
 
-    // Filter by genre
+    
     if (selectedGenre) {
       filtered = filtered.filter((lyric) => lyric.genreId === selectedGenre);
     }
@@ -60,13 +60,13 @@ export default function HomeScreen({ navigation }) {
     await saveLyrics(updatedLyrics);
   };
 
-  // Helper function to get genre name by genreId
+  
   const getGenreName = (genreId) => {
     const genre = genres.find((g) => g.id === genreId);
     return genre ? genre.name : 'Unknown Genre';
   };
 
-  // Render message when no lyrics are found for the selected genre
+  
   const renderEmptyMessage = () => {
     if (selectedGenre && filteredLyrics.length === 0) {
       const genreName = getGenreName(selectedGenre);
@@ -95,7 +95,7 @@ export default function HomeScreen({ navigation }) {
         },
       ]}
     >
-      {/* Filter by Artist */}
+      
       <TextInput
         style={[
           styles.filterInput,
@@ -107,9 +107,9 @@ export default function HomeScreen({ navigation }) {
         onChangeText={setFilterArtist}
       />
 
-      {/* Genre Radio Buttons */}
+      
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.radioContainer}>
-        {/* "All Genres" Radio Button */}
+        
         <TouchableOpacity
           style={[
             styles.radioButton,
@@ -120,7 +120,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.radioText, isDarkMode && { color: '#fff' }]}>All Genres</Text>
         </TouchableOpacity>
 
-        {/* Genre Radio Buttons */}
+       
         {genres.map((genre) => (
           <TouchableOpacity
             key={genre.id}
@@ -135,7 +135,7 @@ export default function HomeScreen({ navigation }) {
         ))}
       </ScrollView>
 
-      {/* Lyrics List */}
+     
       <FlatList
         data={filteredLyrics}
         keyExtractor={(item) => item.id.toString()}
@@ -151,9 +151,9 @@ export default function HomeScreen({ navigation }) {
               Genre: {getGenreName(item.genreId)}
             </Text>
 
-            {/* Action Buttons */}
+           
             <View style={styles.buttonContainer}>
-              {/* View Button */}
+              
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('LyricsDetail', { id: item.id })}
@@ -162,7 +162,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>View</Text>
               </TouchableOpacity>
 
-              {/* Edit Button */}
+              
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('EditLyrics', { id: item.id })}
@@ -171,7 +171,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>Edit</Text>
               </TouchableOpacity>
 
-              {/* Delete Button */}
+             
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => handleDelete(item.id)}
@@ -182,7 +182,7 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
         )}
-        ListEmptyComponent={renderEmptyMessage} // Render empty message
+        ListEmptyComponent={renderEmptyMessage} 
       />
     </View>
   );
@@ -203,18 +203,18 @@ const styles = StyleSheet.create({
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 12,
-    height: 50, // Fixed height for the radio buttons container
+    height: 50, 
   },
   radioButton: {
-    width: 100, // Fixed width for each radio button
-    height: 40, // Fixed height for each radio button
+    width: 100, 
+    height: 40, 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
     marginRight: 8,
-    paddingHorizontal: 10, // Add padding for better spacing
+    paddingHorizontal: 10, 
   },
   radioButtonSelected: {
     backgroundColor: '#6200ee',
