@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { loadLyrics, saveLyrics, loadGenres } from '../utils/storage';
@@ -9,10 +8,11 @@ import { useTheme } from '../app/context/ThemeContext';
 export default function HomeScreen({ navigation }) {
   const [lyrics, setLyrics] = useState([]);
   const [filteredLyrics, setFilteredLyrics] = useState([]);
-  const [filterText, setFilterText] = useState('');
-  const [filterGenre, setFilterGenre] = useState('');
+  const [filterArtist, setFilterArtist] = useState(''); 
+  const [selectedGenre, setSelectedGenre] = useState(''); 
   const [genres, setGenres] = useState([]);
   const isFocused = useIsFocused();
+
 
   const { theme, themeStyles } = useTheme();
   const isDarkMode = theme === 'dark';
@@ -34,20 +34,21 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     applyFilters();
-  }, [filterText, filterGenre, lyrics]);
+  }, [filterArtist, selectedGenre, lyrics]);
 
   const applyFilters = () => {
     let filtered = lyrics;
 
-    if (filterText) {
+
+    if (filterArtist) {
       filtered = filtered.filter((lyric) =>
-        lyric.artist.toLowerCase().includes(filterText.toLowerCase())
+        lyric.artist.toLowerCase().includes(filterArtist.toLowerCase())
       );
     }
 
-    // ✅ Fix: Reset to full list when "All Genres" is selected
-    if (filterGenre) {
-      filtered = filtered.filter((lyric) => lyric.genreId === filterGenre);
+
+    if (selectedGenre) {
+      filtered = filtered.filter((lyric) => lyric.genreId === selectedGenre);
     }
 
     setFilteredLyrics(filtered);
@@ -57,6 +58,26 @@ export default function HomeScreen({ navigation }) {
     const updatedLyrics = lyrics.filter((lyric) => lyric.id !== id);
     setLyrics(updatedLyrics);
     await saveLyrics(updatedLyrics);
+  };
+
+
+  const getGenreName = (genreId) => {
+    const genre = genres.find((g) => g.id === genreId);
+    return genre ? genre.name : 'Unknown Genre';
+  };
+
+  const renderEmptyMessage = () => {
+    if (selectedGenre && filteredLyrics.length === 0) {
+      const genreName = getGenreName(selectedGenre);
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={[styles.emptyText, isDarkMode && { color: '#fff' }]}>
+            No lyrics found in {genreName} genre!
+          </Text>
+        </View>
+      );
+    }
+    return null;
   };
 
   return (
@@ -70,43 +91,48 @@ export default function HomeScreen({ navigation }) {
         },
         isDarkMode && {
           borderColor: '#333',
-        }
+        },
       ]}
     >
-      {/* Artist Filter */}
+
       <TextInput
         style={[
           styles.filterInput,
-          {
-            borderColor: isDarkMode ? '#555' : '#ccc',
-            color: isDarkMode ? '#fff' : '#000',
-          }
+          { borderColor: isDarkMode ? '#555' : '#ccc', color: isDarkMode ? '#fff' : '#000' },
         ]}
         placeholder="Filter by artist..."
         placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={filterText}
-        onChangeText={setFilterText}
+        value={filterArtist}
+        onChangeText={setFilterArtist}
       />
 
-      {/* Genre Filter */}
-      <Picker
-        selectedValue={filterGenre}
-        style={styles.filterPicker}
-        dropdownIconColor="#fff"
-        onValueChange={(itemValue) => {
-          setFilterGenre(itemValue);
-          if (itemValue === '') {
-            setFilteredLyrics(lyrics); // ✅ Reset to full list
-          }
-        }}
-      >
-        <Picker.Item label="All Genres" value="" />
-        {genres.map((genre) => (
-          <Picker.Item key={genre.id} label={genre.name} value={genre.id} />
-        ))}
-      </Picker>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.radioContainer}>
 
-      {/* Lyrics List */}
+        <TouchableOpacity
+          style={[
+            styles.radioButton,
+            selectedGenre === '' && styles.radioButtonSelected,
+          ]}
+          onPress={() => setSelectedGenre('')}
+        >
+          <Text style={[styles.radioText, isDarkMode && { color: '#fff' }]}>All Genres</Text>
+        </TouchableOpacity>
+
+        {genres.map((genre) => (
+          <TouchableOpacity
+            key={genre.id}
+            style={[
+              styles.radioButton,
+              selectedGenre === genre.id && styles.radioButtonSelected,
+            ]}
+            onPress={() => setSelectedGenre(genre.id)}
+          >
+            <Text style={[styles.radioText, isDarkMode && { color: '#fff' }]}>{genre.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+
       <FlatList
         data={filteredLyrics}
         keyExtractor={(item) => item.id.toString()}
@@ -118,10 +144,13 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.artist, { color: isDarkMode ? '#ccc' : '#666' }]}>
               Artist: {item.artist}
             </Text>
+            <Text style={[styles.genre, { color: isDarkMode ? '#ccc' : '#666' }]}>
+              Genre: {getGenreName(item.genreId)}
+            </Text>
 
-            {/* Buttons */}
+
             <View style={styles.buttonContainer}>
-              {/* View Button */}
+
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('LyricsDetail', { id: item.id })}
@@ -130,7 +159,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>View</Text>
               </TouchableOpacity>
 
-              {/* Edit Button */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('EditLyrics', { id: item.id })}
@@ -139,7 +167,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.buttonText}>Edit</Text>
               </TouchableOpacity>
 
-              {/* Delete Button */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => handleDelete(item.id)}
@@ -150,6 +177,7 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
         )}
+        ListEmptyComponent={renderEmptyMessage} 
       />
     </View>
   );
@@ -167,14 +195,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 12,
   },
-  filterPicker: {
+  radioContainer: {
+    flexDirection: 'row',
+    marginBottom: 12,
+  },
+  radioButton: {
+    width: 100, 
     height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    color: '#000',
+    marginRight: 8,
+  },
+  radioButtonSelected: {
+    backgroundColor: '#6200ee',
+    borderColor: '#6200ee',
+  },
+  radioText: {
+    fontSize: 14,
+    color: '#333',
   },
   card: {
     padding: 16,
@@ -192,6 +233,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   artist: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  genre: {
     fontSize: 14,
     marginBottom: 12,
   },
@@ -218,5 +263,15 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     color: '#333',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
   },
 });
