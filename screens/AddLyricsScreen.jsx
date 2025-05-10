@@ -1,16 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { useIsFocused } from '@react-navigation/native'; // Import useIsFocused
+import { 
+  View, 
+  StyleSheet, 
+  Animated, 
+  Platform,
+  KeyboardAvoidingView 
+} from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { loadLyrics, saveLyrics } from '../utils/storage';
 import LyricsForm from '../components/LyricsForm';
+import { useTheme } from '../app/context/ThemeContext';
 
 export default function AddLyricsScreen({ navigation }) {
-  const isFocused = useIsFocused(); // Track if the screen is focused
-  const [resetForm, setResetForm] = useState(false); // State to trigger form reset
+  const isFocused = useIsFocused();
+  const [resetForm, setResetForm] = useState(false);
+  const { themeStyles } = useTheme();
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     if (isFocused) {
-      setResetForm(true); // Reset the form when the screen is focused
+      setResetForm(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      fadeAnim.setValue(0);
     }
   }, [isFocused]);
 
@@ -21,25 +37,50 @@ export default function AddLyricsScreen({ navigation }) {
     }
 
     const loadedLyrics = await loadLyrics();
-    const newLyric = { id: Date.now(), title, content, genreId, artist, date: new Date() };
+    const newLyric = { 
+      id: Date.now(), 
+      title, 
+      content, 
+      genreId, 
+      artist, 
+      date: new Date() 
+    };
     const updatedLyrics = [...loadedLyrics, newLyric];
     await saveLyrics(updatedLyrics);
     navigation.navigate('Home');
   };
 
   return (
-    <View style={styles.container}>
-      <LyricsForm
-        onSubmit={handleAdd}
-        key={resetForm ? 'reset' : 'no-reset'} // Force re-render to reset form
-      />
-    </View>
+    <KeyboardAvoidingView 
+      style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
+        <LyricsForm
+          onSubmit={handleAdd}
+          key={resetForm ? 'reset' : 'no-reset'}
+        />
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+  },
+  formContainer: {
+    flex: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
 });

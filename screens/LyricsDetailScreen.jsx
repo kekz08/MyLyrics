@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Animated,
+  Platform,
+  StatusBar,
+  Dimensions 
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { loadLyrics, loadGenres } from '../utils/storage';
-import { useTheme } from '../app/context/ThemeContext'; 
+import { useTheme } from '../app/context/ThemeContext';
+
+const HEADER_MAX_HEIGHT = 250;
+const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 90 : 70;
+const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+const { width } = Dimensions.get('window');
 
 export default function LyricsDetailScreen({ route }) {
   const { id } = route.params;
   const [lyric, setLyric] = useState(null);
   const [genre, setGenre] = useState('');
-
-  const { theme } = useTheme(); 
-  const isDarkMode = theme === 'dark';
+  const { themeStyles } = useTheme();
+  const scrollY = new Animated.Value(0);
 
   useEffect(() => {
     const fetchLyricAndGenre = async () => {
@@ -30,103 +43,247 @@ export default function LyricsDetailScreen({ route }) {
 
   if (!lyric) {
     return (
-      <View style={[styles.container, isDarkMode && styles.containerDark]}>
-        <Text style={[styles.loadingText, isDarkMode && styles.loadingTextDark]}>Loading...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: themeStyles.backgroundColor }]}>
+        <Icon name="music-note" size={48} color={themeStyles.primaryColor} />
+        <Text style={[styles.loadingText, { color: themeStyles.secondaryTextColor }]}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, -HEADER_SCROLL_DISTANCE],
+    extrapolate: 'clamp',
+  });
+
+  const headerScale = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const headerTitleOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, 0.5, 1],
+    extrapolate: 'clamp',
+  });
+
+  const headerInfoOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <ScrollView contentContainerStyle={[styles.scrollContainer, isDarkMode && styles.scrollContainerDark]}>
-      <Text style={[styles.title, isDarkMode && styles.titleDark]}>{lyric.title}</Text>
+    <View style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}>
+      <StatusBar barStyle="light-content" />
+      
+      <Animated.View 
+        style={[
+          styles.header, 
+          { 
+            backgroundColor: themeStyles.headerColor,
+            transform: [
+              { translateY: headerTranslateY },
+              { scale: headerScale }
+            ]
+          }
+        ]}
+      >
+        <Animated.View 
+          style={[
+            styles.headerInfo,
+            { opacity: headerInfoOpacity }
+          ]}
+        >
+          <Text style={[styles.headerTitle, { color: themeStyles.headerTextColor }]}>
+            {lyric.title}
+          </Text>
+          <Text style={[styles.headerArtist, { color: themeStyles.headerTextColor }]}>
+            {lyric.artist}
+          </Text>
+        </Animated.View>
 
+        <Animated.Text
+          style={[
+            styles.headerScrollTitle,
+            { 
+              opacity: headerTitleOpacity,
+              color: themeStyles.headerTextColor
+            }
+          ]}
+          numberOfLines={1}
+        >
+          {lyric.title}
+        </Animated.Text>
+      </Animated.View>
 
-      <View style={styles.infoContainer}>
-        <Icon name="person" size={20} color={isDarkMode ? '#bb86fc' : '#6200ee'} />
-        <Text style={[styles.artist, isDarkMode && styles.artistDark]}>
-          Artist: {lyric.artist}
-        </Text>
-      </View>
+      <Animated.ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+      >
+        <View style={{ height: HEADER_MAX_HEIGHT }} />
+        <View style={styles.metadataContainer}>
+          <View style={[styles.metadataCard, { backgroundColor: themeStyles.cardColor }]}>
+            <View style={styles.metadataItem}>
+              <Icon name="person" size={24} color={themeStyles.primaryColor} />
+              <View style={styles.metadataText}>
+                <Text style={[styles.metadataLabel, { color: themeStyles.secondaryTextColor }]}>
+                  Artist
+                </Text>
+                <Text style={[styles.metadataValue, { color: themeStyles.textColor }]}>
+                  {lyric.artist}
+                </Text>
+              </View>
+            </View>
 
+            <View style={[styles.divider, { backgroundColor: themeStyles.dividerColor }]} />
 
-      <View style={styles.infoContainer}>
-        <Icon name="library-music" size={20} color={isDarkMode ? '#03DAC6' : '#03DAC6'} />
-        <Text style={[styles.genre, isDarkMode && styles.genreDark]}>
-          Genre: {genre}
-        </Text>
-      </View>
+            <View style={styles.metadataItem}>
+              <Icon name="library-music" size={24} color={themeStyles.accentColor} />
+              <View style={styles.metadataText}>
+                <Text style={[styles.metadataLabel, { color: themeStyles.secondaryTextColor }]}>
+                  Genre
+                </Text>
+                <Text style={[styles.metadataValue, { color: themeStyles.textColor }]}>
+                  {genre}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-
-      <Text style={[styles.content, isDarkMode && styles.contentDark]}>
-        {lyric.content}
-      </Text>
-    </ScrollView>
+        <View style={[styles.contentCard, { backgroundColor: themeStyles.cardColor }]}>
+          <Text style={[styles.contentText, { color: themeStyles.textColor }]}>
+            {lyric.content}
+          </Text>
+        </View>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
   },
-  containerDark: {
-    backgroundColor: '#121212', 
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 16,
-  },
-  scrollContainerDark: {
-    backgroundColor: '#121212', 
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  titleDark: {
-    color: '#fff', 
-  },
-  infoContainer: {
-    flexDirection: 'row',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  artist: {
-    fontSize: 18,
-    color: '#333',
-    marginLeft: 8,
-    flexShrink: 1,
-  },
-  artistDark: {
-    color: '#fff', 
-  },
-  genre: {
-    fontSize: 16,
-    color: '#666',
-    marginLeft: 8,
-    flexShrink: 1,
-  },
-  genreDark: {
-    color: '#aaa', 
-  },
-  content: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 24,
-    marginTop: 16,
-    textAlign: 'justify',
-  },
-  contentDark: {
-    color: '#ddd', 
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    marginTop: 16,
   },
-  loadingTextDark: {
-    color: '#aaa', 
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: HEADER_MAX_HEIGHT,
+    overflow: 'hidden',
+    zIndex: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  headerInfo: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  headerArtist: {
+    fontSize: 18,
+    opacity: 0.9,
+  },
+  headerScrollTitle: {
+    position: 'absolute',
+    bottom: 16,
+    left: 20,
+    right: 20,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  scrollContainer: {
+    paddingBottom: 20,
+  },
+  metadataContainer: {
+    padding: 20,
+  },
+  metadataCard: {
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  metadataItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metadataText: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  metadataLabel: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  metadataValue: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  divider: {
+    height: 1,
+    marginVertical: 16,
+  },
+  contentCard: {
+    margin: 20,
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  contentText: {
+    fontSize: 16,
+    lineHeight: 24,
   },
 });

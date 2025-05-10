@@ -35,16 +35,46 @@ export const ThemeProvider = ({ children }) => {
 
   const themeStyles = isDarkMode
     ? {
-        backgroundColor: '#121212',
-        textColor: '#fff',
-        headerColor: '#1f1f1f',
-        headerTextColor: '#bb86fc',
+        // Enhanced Dark theme
+        backgroundColor: '#1A1A1A',
+        surfaceColor: '#242424',
+        cardColor: '#2A2A2A',
+        textColor: '#FFFFFF',
+        secondaryTextColor: '#CCCCCC',
+        headerColor: '#2D1B69',
+        headerTextColor: '#E0B0FF',
+        primaryColor: '#B388FF',
+        accentColor: '#00E5FF',
+        errorColor: '#FF5C8D',
+        borderColor: '#404040',
+        shadowColor: '#000000',
+        inputBackground: '#333333',
+        buttonColor: '#B388FF',
+        buttonTextColor: '#1A1A1A',
+        dividerColor: '#404040',
+        rippleColor: 'rgba(179, 136, 255, 0.2)',
+        placeholderColor: '#888888'
       }
     : {
-        backgroundColor: '#f5f5f5',
-        textColor: '#000',
-        headerColor: '#6200ee',
-        headerTextColor: '#fff',
+        // Enhanced Light theme
+        backgroundColor: '#F8F9FF',
+        surfaceColor: '#FFFFFF',
+        cardColor: '#FFFFFF',
+        textColor: '#1A1A1A',
+        secondaryTextColor: '#666666',
+        headerColor: '#5B21B6',
+        headerTextColor: '#FFFFFF',
+        primaryColor: '#6200EE',
+        accentColor: '#03DAC6',
+        errorColor: '#DC2626',
+        borderColor: '#E5E7EB',
+        shadowColor: '#000000',
+        inputBackground: '#FFFFFF',
+        buttonColor: '#6200EE',
+        buttonTextColor: '#FFFFFF',
+        dividerColor: '#E5E7EB',
+        rippleColor: 'rgba(98, 0, 238, 0.1)',
+        placeholderColor: '#9CA3AF'
       };
 
   return (
@@ -55,3 +85,5 @@ export const ThemeProvider = ({ children }) => {
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
+export default ThemeContext;
