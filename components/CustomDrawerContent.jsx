@@ -29,6 +29,7 @@ export default function CustomDrawerContent(props) {
 
       <View style={styles.drawerItemsContainer}>
         {renderDrawerItem("home", "Home", () => navigation.navigate('Home'))}
+        {renderDrawerItem("queue-music", "Playlists", () => navigation.navigate('Playlists'))}
         {renderDrawerItem("add", "Add Lyrics", () => navigation.navigate('AddLyrics'))}
         {renderDrawerItem("library-music", "Genre List", () => navigation.navigate('GenresScreen'))}
       </View>

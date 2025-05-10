@@ -7,7 +7,10 @@ import {
   Animated,
   Platform,
   StatusBar,
-  Dimensions 
+  Dimensions,
+  Share,
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { loadLyrics, loadGenres } from '../utils/storage';
@@ -40,6 +43,17 @@ export default function LyricsDetailScreen({ route }) {
 
     fetchLyricAndGenre();
   }, [id]);
+
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        title: lyric.title,
+        message: `${lyric.title} by ${lyric.artist}\n\n${lyric.content}`,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to share lyrics');
+    }
+  };
 
   if (!lyric) {
     return (
@@ -92,6 +106,13 @@ export default function LyricsDetailScreen({ route }) {
           }
         ]}
       >
+        <TouchableOpacity 
+          style={styles.shareButton}
+          onPress={handleShare}
+        >
+          <Icon name="share" size={24} color={themeStyles.headerTextColor} />
+        </TouchableOpacity>
+
         <Animated.View 
           style={[
             styles.headerInfo,
@@ -285,5 +306,14 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  shareButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 20,
+    right: 20,
+    zIndex: 2,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
 });

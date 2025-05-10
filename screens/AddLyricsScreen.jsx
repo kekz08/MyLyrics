@@ -4,7 +4,8 @@ import {
   StyleSheet, 
   Animated, 
   Platform,
-  KeyboardAvoidingView 
+  KeyboardAvoidingView,
+  Alert
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { loadLyrics, saveLyrics } from '../utils/storage';
@@ -31,23 +32,47 @@ export default function AddLyricsScreen({ navigation }) {
   }, [isFocused]);
 
   const handleAdd = async (title, content, genreId, artist) => {
+    console.log('AddLyricsScreen - handleAdd called with:', {
+      title,
+      content,
+      genreId,
+      artist
+    });
+
     if (!genreId) {
-      alert('Please select a genre');
+      Alert.alert('Error', 'Please select a genre');
       return;
     }
 
-    const loadedLyrics = await loadLyrics();
-    const newLyric = { 
-      id: Date.now(), 
-      title, 
-      content, 
-      genreId, 
-      artist, 
-      date: new Date() 
-    };
-    const updatedLyrics = [...loadedLyrics, newLyric];
-    await saveLyrics(updatedLyrics);
-    navigation.navigate('Home');
+    try {
+      const loadedLyrics = await loadLyrics();
+      console.log('AddLyricsScreen - Current lyrics in storage:', JSON.stringify(loadedLyrics, null, 2));
+
+      const newLyric = { 
+        id: Date.now().toString(), // Convert to string to ensure consistent ID type
+        title, 
+        content, 
+        genreId, 
+        artist, 
+        date: new Date().toISOString()
+      };
+      console.log('AddLyricsScreen - New lyric to be added:', JSON.stringify(newLyric, null, 2));
+
+      const updatedLyrics = [...loadedLyrics, newLyric];
+      console.log('AddLyricsScreen - Updated lyrics array:', JSON.stringify(updatedLyrics, null, 2));
+      
+      await saveLyrics(updatedLyrics);
+      console.log('AddLyricsScreen - Lyrics saved successfully');
+      
+      // Verify the save
+      const verifyLyrics = await loadLyrics();
+      console.log('AddLyricsScreen - Verified lyrics after save:', JSON.stringify(verifyLyrics, null, 2));
+      
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('AddLyricsScreen - Error adding lyrics:', error);
+      Alert.alert('Error', 'Failed to add lyrics. Please try again.');
+    }
   };
 
   return (

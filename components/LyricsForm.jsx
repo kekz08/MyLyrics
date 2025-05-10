@@ -29,6 +29,12 @@ const LyricsForm = ({
   );
 
   const handleSave = () => {
+    console.log('Attempting to save lyrics with:', {
+      title,
+      artist,
+      content,
+      genreId
+    });
 
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter a title');
@@ -47,9 +53,10 @@ const LyricsForm = ({
       return;
     }
 
-    onSubmit(title, content, genreId, artist);
+    console.log('All validation passed, submitting lyrics');
+    onSubmit(title.trim(), content.trim(), genreId, artist.trim());
 
-
+    // Clear form
     setTitle('');
     setContent('');
     setGenreId(null);

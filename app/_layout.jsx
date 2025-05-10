@@ -10,6 +10,8 @@ import LyricsDetailScreen from '../screens/LyricsDetailScreen';
 import EditLyricsScreen from '../screens/EditLyricsScreen';
 import SplashScreen from '../screens/SplashScreen';
 import AddGenreScreen from '../screens/AddGenreScreen';
+import PlaylistsScreen from '../screens/PlaylistsScreen';
+import PlaylistDetailScreen from '../screens/PlaylistDetailScreen';
 import { ThemeProvider, useTheme } from '../app/context/ThemeContext';
 
 const Drawer = createDrawerNavigator();
@@ -61,6 +63,11 @@ function DrawerNavigator() {
         options={{ title: 'My Lyrics' }}
       />
       <Drawer.Screen
+        name="Playlists"
+        component={PlaylistsScreen}
+        options={{ title: 'My Playlists' }}
+      />
+      <Drawer.Screen
         name="GenresScreen"
         component={GenresScreen}
         options={{ title: 'Manage Genres' }}
@@ -68,7 +75,7 @@ function DrawerNavigator() {
       <Drawer.Screen
         name="AddGenreScreen"
         component={AddGenreScreen}
-        options={{ title: 'Add Genres' }}
+        options={{ title: 'Add Genre' }}
       />
       <Drawer.Screen
         name="AddLyrics"
@@ -88,6 +95,14 @@ function DrawerNavigator() {
         component={EditLyricsScreen}
         options={{
           title: 'Edit Lyric',
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name="PlaylistDetail"
+        component={PlaylistDetailScreen}
+        options={{
+          title: 'Playlist',
           drawerItemStyle: { display: 'none' },
         }}
       />
