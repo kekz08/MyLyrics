@@ -5,18 +5,35 @@ import {
   Animated, 
   Platform,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  TouchableOpacity,
+  Text
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { loadLyrics, saveLyrics } from '../utils/storage';
 import LyricsForm from '../components/LyricsForm';
 import { useTheme } from '../app/context/ThemeContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export default function AddLyricsScreen({ navigation }) {
+export default function AddLyricsScreen({ navigation, route }) {
   const isFocused = useIsFocused();
   const [resetForm, setResetForm] = useState(false);
   const { themeStyles } = useTheme();
   const [fadeAnim] = useState(new Animated.Value(0));
+
+  // Pre-fill form if coming from OnlineLyricsSearch
+  const [prefill, setPrefill] = useState({ title: '', artist: '', content: '' });
+  useEffect(() => {
+    if (route?.params) {
+      setPrefill({
+        title: route.params.title || '',
+        artist: route.params.artist || '',
+        content: route.params.content || '',
+      });
+    } else {
+      setPrefill({ title: '', artist: '', content: '' });
+    }
+  }, [route?.params]);
 
   useEffect(() => {
     if (isFocused) {
@@ -75,15 +92,39 @@ export default function AddLyricsScreen({ navigation }) {
     }
   };
 
+  const handleOnlineSearch = () => {
+    navigation.navigate('OnlineLyricsSearch');
+  };
+
   return (
     <KeyboardAvoidingView 
       style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <View style={{ padding: 16 }}>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 12,
+            borderRadius: 8,
+            backgroundColor: themeStyles.primaryColor,
+            marginBottom: 8,
+          }}
+          onPress={handleOnlineSearch}
+        >
+          <Icon name="search" size={20} color="#FFFFFF" />
+          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '500', marginLeft: 8 }}>
+            Search Online
+          </Text>
+        </TouchableOpacity>
+      </View>
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
         <LyricsForm
           onSubmit={handleAdd}
           key={resetForm ? 'reset' : 'no-reset'}
+          prefill={prefill}
         />
       </Animated.View>
     </KeyboardAvoidingView>

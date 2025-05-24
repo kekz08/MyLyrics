@@ -5,14 +5,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { loadGenres } from '../utils/storage';
 import { useTheme } from '../app/context/ThemeContext';
 
-const LyricsForm = ({ 
-  onSubmit, 
-  initialValues = { title: '', content: '', genreId: null, artist: '' } 
-}) => {
-  const [title, setTitle] = useState(initialValues.title);
-  const [content, setContent] = useState(initialValues.content);
-  const [genreId, setGenreId] = useState(initialValues.genreId);
-  const [artist, setArtist] = useState(initialValues.artist);
+export default function LyricsForm({ onSubmit, prefill = {}, ...props }) {
+  const [title, setTitle] = useState(prefill.title || '');
+  const [artist, setArtist] = useState(prefill.artist || '');
+  const [content, setContent] = useState(prefill.content || '');
+  const [genreId, setGenreId] = useState(prefill.genreId || null);
   const [genres, setGenres] = useState([]);
 
   const { theme } = useTheme(); 
@@ -120,7 +117,7 @@ const LyricsForm = ({
       </TouchableOpacity>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -194,5 +191,3 @@ const styles = StyleSheet.create({
     color: '#121212',
   },
 });
-
-export default LyricsForm;

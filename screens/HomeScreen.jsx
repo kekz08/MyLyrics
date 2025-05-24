@@ -34,7 +34,7 @@ export default function HomeScreen({ navigation }) {
   const [lyrics, setLyrics] = useState([]);
   const [filteredLyrics, setFilteredLyrics] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState(''); 
   const [genres, setGenres] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
@@ -170,7 +170,7 @@ export default function HomeScreen({ navigation }) {
           onPress: async () => {
             const updatedLyrics = lyrics.filter(lyric => lyric.id !== id);
             await saveLyrics(updatedLyrics);
-            setLyrics(updatedLyrics);
+    setLyrics(updatedLyrics);
             setFilteredLyrics(updatedLyrics);
           }
         }
@@ -242,7 +242,7 @@ export default function HomeScreen({ navigation }) {
     const isFavorite = favorites.includes(item.id);
     const genre = genres.find(g => g.id === item.genreId);
 
-    return (
+  return (
       <Animated.View
         style={[
           styles.card,
@@ -266,13 +266,13 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.cardHeader}>
             <View style={styles.titleContainer}>
               <Text style={[styles.title, { color: themeStyles.textColor }]} numberOfLines={1}>
-                {item.title}
-              </Text>
+              {item.title}
+            </Text>
               <Text style={[styles.artist, { color: themeStyles.secondaryTextColor }]} numberOfLines={1}>
                 {item.artist}
-              </Text>
+            </Text>
             </View>
-            
+           
             <View style={styles.headerActions}>
               <TouchableOpacity
                 onPress={() => {
@@ -311,7 +311,7 @@ export default function HomeScreen({ navigation }) {
                 <Icon name="edit" size={20} color={themeStyles.primaryColor} />
                 <Text style={[styles.buttonText, { color: themeStyles.textColor }]}>Edit</Text>
               </TouchableOpacity>
-              
+             
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: themeStyles.surfaceColor }]}
                 onPress={() => handleDelete(item.id)}

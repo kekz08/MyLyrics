@@ -12,13 +12,14 @@ import SplashScreen from '../screens/SplashScreen';
 import AddGenreScreen from '../screens/AddGenreScreen';
 import PlaylistsScreen from '../screens/PlaylistsScreen';
 import PlaylistDetailScreen from '../screens/PlaylistDetailScreen';
+import OnlineLyricsSearch from '../screens/OnlineLyricsSearch';
 import { ThemeProvider, useTheme } from '../app/context/ThemeContext';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 function DrawerNavigator() {
-  const { themeStyles, isDarkMode } = useTheme(); 
+  const { themeStyles, isDarkMode } = useTheme();
 
   return (
     <Drawer.Navigator
@@ -39,7 +40,7 @@ function DrawerNavigator() {
             <Icon name="menu" size={24} color={themeStyles.headerTextColor} />
           </TouchableOpacity>
         ),
-      
+
         headerRight: () => (
           <Image
             source={
@@ -123,6 +124,30 @@ export default function Layout() {
           name="Main"
           component={DrawerNavigator}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OnlineLyricsSearch"
+          component={OnlineLyricsSearch}
+          options={{
+            title: 'Search Lyrics Online',
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="AddLyricsScreen"
+          component={AddLyricsScreen}
+          options={{
+            title: 'Add Lyrics',
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            title: 'Home',
+            headerShown: true,
+          }}
         />
       </Stack.Navigator>
     </ThemeProvider>

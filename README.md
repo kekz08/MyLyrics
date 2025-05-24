@@ -1,50 +1,143 @@
-# Welcome to your Expo app 👋
+# MyLyrics - Lyrics Management App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+MyLyrics is a React Native mobile application that helps users manage and organize their favorite song lyrics. The app provides features for adding, editing, searching, and organizing lyrics into playlists.
 
-## Get started
+## Features
 
-1. Install dependencies
+### Core Features
+- 📝 Add and edit lyrics with title, artist, and content
+- 🔍 Search functionality with advanced filters
+- 🎵 Organize lyrics into playlists
+- ⭐ Mark favorite lyrics
+- 🏷️ Categorize lyrics by genres
+- 🔄 Pull-to-refresh for updating content
+- 🌓 Dark/Light theme support
+- 🌐 Online lyrics search via Genius API
 
-   ```bash
-   npm install
-   ```
+### Search Capabilities
+- Quick search across title, artist, and content
+- Advanced search with multiple filters
+- Search history tracking
+- Clear search history option
+- Online lyrics search via Genius API
 
-2. Start the app
+### Playlist Management
+- Create custom playlists
+- Add/remove songs from playlists
+- View playlist contents
+- Track number of songs in each playlist
 
-   ```bash
-    npx expo start
-   ```
+### User Experience
+- Smooth animations and transitions
+- Intuitive UI with modern design
+- Responsive layout
+- Error handling and user feedback
 
-In the output, you'll find options to open the app in a
+## Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+MyLyrics/
+├── app/
+│   ├── context/
+│   │   └── ThemeContext.jsx    # Theme management
+│   └── navigation/
+│       └── AppNavigator.jsx    # Navigation configuration
+├── screens/
+│   ├── HomeScreen.jsx         # Main screen with lyrics list
+│   ├── AddLyricsScreen.jsx    # Add new lyrics
+│   ├── EditLyricsScreen.jsx   # Edit existing lyrics
+│   ├── LyricsDetailScreen.jsx # View lyrics details
+│   ├── PlaylistsScreen.jsx    # Playlist management
+│   ├── OnlineLyricsSearch.jsx # Search lyrics online
+│   └── AddLyricsScreen.jsx    # Add lyrics from online search
+├── utils/
+│   └── storage.js             # Data persistence utilities
+└── assets/                    # Images and other static assets
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Technical Details
 
-## Learn more
+### Dependencies
+- React Native
+- React Navigation
+- AsyncStorage for data persistence
+- React Native Vector Icons
 
-To learn more about developing your project with Expo, look at the following resources:
+### Data Structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+#### Lyrics Object
+```javascript
+{
+  id: string,
+  title: string,
+  artist: string,
+  content: string,
+  genreId: string,
+  createdAt: string,
+  updatedAt: string
+}
+```
 
-## Join the community
+#### Playlist Object
+```javascript
+{
+  id: string,
+  name: string,
+  lyricsIds: string[],
+  createdAt: string,
+  updatedAt: string
+}
+```
 
-Join our community of developers creating universal apps.
+#### Genre Object
+```javascript
+{
+  id: string,
+  name: string
+}
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Setup Instructions
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/MyLyrics.git
+cd MyLyrics
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+4. Run on Android:
+```bash
+npm run android
+```
+
+5. Run on iOS:
+```bash
+npm run ios
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- React Native community
+- All contributors who have helped shape this project
